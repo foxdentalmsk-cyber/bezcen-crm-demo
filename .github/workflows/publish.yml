@@ -28,6 +28,7 @@ jobs:
           source_dir="$(find mirror -type f -name index.html -printf '%h\n' | head -n 1)"
           test -n "$source_dir"
           cp -R "$source_dir"/. public/
+          find public -type f \( -name '*.html' -o -name '*.css' -o -name '*.js' \) -exec sed -i             -e 's#"/assets/#"/bezcen-crm-demo/assets/#g'             -e "s#'/assets/#'/bezcen-crm-demo/assets/#g"             -e 's#"/_next/#"/bezcen-crm-demo/_next/#g'             -e "s#'/_next/#'/bezcen-crm-demo/_next/#g" {} +
           touch public/.nojekyll
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
