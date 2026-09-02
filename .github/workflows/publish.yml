@@ -1,0 +1,40 @@
+name: Publish CRM demo
+
+on:
+  workflow_dispatch:
+  push:
+    branches: ["main"]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download the public demo
+        run: |
+          mkdir -p public
+          wget --mirror --convert-links --adjust-extension --page-requisites --no-parent --directory-prefix=mirror "https://bezcen-crm-demo.fox-old.chatgpt.site/"
+          source_dir="$(find mirror -type f -name index.html -printf '%h\n' | head -n 1)"
+          test -n "$source_dir"
+          cp -R "$source_dir"/. public/
+          touch public/.nojekyll
+      - name: Configure GitHub Pages
+        uses: actions/configure-pages@v5
+      - name: Upload the demo
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+      - name: Publish
+        id: deployment
+        uses: actions/deploy-pages@v4
