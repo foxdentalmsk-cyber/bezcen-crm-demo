@@ -21,21 +21,16 @@ jobs:
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
-      - name: Download the public demo
-        run: |
-          mkdir -p public
-          wget --mirror --convert-links --adjust-extension --page-requisites --no-parent --directory-prefix=mirror "https://bezcen-crm-demo.fox-old.chatgpt.site/"
-          source_dir="$(find mirror -type f -name index.html -printf '%h\n' | head -n 1)"
-          test -n "$source_dir"
-          cp -R "$source_dir"/. public/
-          find public -type f \( -name '*.html' -o -name '*.css' -o -name '*.js' \) -exec sed -i             -e 's#"/assets/#"/bezcen-crm-demo/assets/#g'             -e "s#'/assets/#'/bezcen-crm-demo/assets/#g"             -e 's#"/_next/#"/bezcen-crm-demo/_next/#g'             -e "s#'/_next/#'/bezcen-crm-demo/_next/#g" {} +
-          touch public/.nojekyll
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Prepare static demo
+        run: touch .nojekyll
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
       - name: Upload the demo
         uses: actions/upload-pages-artifact@v3
         with:
-          path: public
+          path: .
       - name: Publish
         id: deployment
         uses: actions/deploy-pages@v4
